@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="A modular and lighweight generation pipeline to generate synthetic lecture slide with automated annotations for slide element detection and query-based slide retrieval">
+  <meta name="keywords" content="Document Intelligence, Computer Vision, Object Detection, Image Retrieval">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SynSlideGen : AI-Generated Lecture Slides for Improving Slide Element Detection and Retrieval</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <a class="navbar-item" href="https://cvit.iiit.ac.in">
+      <span class="icon">
+          <i class="fas fa-home"></i>
+      </span>
+      </a>
+
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          Related Works
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item" href="https://yihaop.github.io/dreamstruct/">
+            DreamStruct (ECCV 2024)
+          </a>
+          <a class="navbar-item" href="https://travisseng.github.io/slidecraft/">
+            SlideCraft (ICDAR 2024)
+          </a>
+          <a class="navbar-item" href="https://jobinkv.github.io/lecsd/">
+            LecSD (WACV 2024)
+          </a>
+          <a class="navbar-item" href="https://openaccess.thecvf.com/content/ICCV2023/papers/Lee_Lecture_Presentations_Multimodal_Dataset_Towards_Understanding_Multimodality_in_Educational_Videos_ICCV_2023_paper.pdf">
+            Lecture Presentation Dataset (ICCV 2023)
+          </a>
+          <a class="navbar-item" href="https://fitvid.kixlab.org">
+            FitVID (ACM CHI 2022)
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+<!-- 
+<section id="pipeline" class="section my-5">
+  <div class="container">
+    <h3 class="section-title mb-3"> SynSlideGen Pipeline</h3>
+    <p class="section-text">The pipeline comprises four stages:</p>
+    <ol class="pipeline-steps">
+      <li><strong>Data Sourcing:</strong> Text from LectureBank is cleaned and chunked into semantically meaningful slide chunks.</li>
+      <li><strong>Slide Generation:</strong> Each chunk is mapped to a Beamer template (e.g., text-heavy, image-heavy) to generate LaTeX source files.</li>
+      <li><strong>Compilation:</strong> LaTeX is compiled into images and PDFs using Overleaf integration.</li>
+      <li><strong>Annotation:</strong> We extract bounding boxes and class labels from LaTeX structure, yielding fine-grained annotations.</li>
+    </ol>
+    <div class="text-center mt-4">
+      <img src="assets/img/synslidegen/fig1.png" alt="Figure 1: SynSlideGen Pipeline Overview" class="img-fluid rounded" />
+      <p class="figure-caption mt-2"><i>Figure 1: SynSlideGen Pipeline Overview</i></p>
+    </div>
+  </div>
+</section>
+
+<section id="experimental-setup" class="section my-5">
+  <div class="container">
+    <h3 class="section-title mb-3">4. Experimental Setup</h3>
+    <p class="section-text">
+      We evaluate SynSlideGen on two downstream tasks using LectureBank data:
+    </p>
+    <ul class="task-list">
+      <li><strong>Slide Element Detection (SED):</strong> Predict class-labeled bounding boxes (e.g., Title, Bullet, Image) using a DETR-style model.</li>
+      <li><strong>Slide Image Retrieval (SIR):</strong> Given a query slide image, retrieve similar slides using vision-language embeddings.</li>
+    </ul>
+    <p class="section-text">
+      We train models on three configurations: human-only data, synthetic-only data, and combined. We also benchmark different LaTeX slide types.
+    </p>
+    <div class="text-center mt-4">
+      <img src="assets/img/synslidegen/tab1.png" alt="Table 1: Dataset Statistics (Human vs Synthetic)" class="img-fluid rounded" />
+      <p class="figure-caption mt-2"><i>Table 1: Dataset Statistics (Human vs Synthetic)</i></p>
+    </div>
+  </div>
+</section>
+
+<section id="results" class="section my-5">
+  <div class="container">
+    <h3 class="section-title mb-4">5. Results</h3>
+
+    <div class="subsection mb-5">
+      <h4 class="subsection-title mb-2">5.1 Slide Element Detection</h4>
+      <p class="section-text">
+        Training with synthetic data improves mAP@0.5 across all element classes. Especially for low-resource classes like <i>Equation</i> and <i>Table</i>, SynSlideGen augments performance by 8–12%.
+      </p>
+      <div class="text-center mt-3">
+        <img src="assets/img/synslidegen/tab2.png" alt="Table 2: SED Performance (mAP@0.5) with Synthetic Augmentation" class="img-fluid rounded" />
+        <p class="figure-caption mt-2"><i>Table 2: SED Performance (mAP@0.5) with Synthetic Augmentation</i></p>
+      </div>
+    </div>
+
+    <div class="subsection mb-5">
+      <h4 class="subsection-title mb-2">5.2 Slide Image Retrieval</h4>
+      <p class="section-text">
+        SynSlideGen-augmented training improves Recall@1 and Recall@5 for CLIP-based retrieval models. It enhances performance particularly for underrepresented slide types like equation-heavy or diagram slides.
+      </p>
+      <div class="text-center mt-3">
+        <img src="assets/img/synslidegen/tab3.png" alt="Table 3: SIR Retrieval Metrics (Recall@K)" class="img-fluid rounded" />
+        <p class="figure-caption mt-2"><i>Table 3: SIR Retrieval Metrics (Recall@K)</i></p>
+      </div>
+    </div>
+
+    <div class="subsection mb-5">
+      <h4 class="subsection-title mb-2">5.3 Generalization Across Layouts</h4>
+      <p class="section-text">
+        We test generalization across LaTeX templates. Models trained with SynSlideGen show stronger layout invariance than human-only models, achieving 5–7% higher mAP when tested on unseen slide layouts.
+      </p>
+      <div class="text-center mt-3">
+        <img src="assets/img/synslidegen/fig2.png" alt="Figure 2: Layout Generalization Across Templates" class="img-fluid rounded" />
+        <p class="figure-caption mt-2"><i>Figure 2: Layout Generalization Across Templates</i></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="conclusion" class="section my-5">
+  <div class="container">
+    <h3 class="section-title mb-3">6. Conclusion</h3>
+    <p class="section-text">
+      SynSlideGen offers a scalable solution to training data bottlenecks in lecture slide understanding. By generating realistic slides with dense annotations, it boosts detection and retrieval performance, especially for long-tail and underrepresented classes. We hope this encourages more work in data-centric methods for education-focused document AI.
+    </p>
+  </div>
+</section>
+ -->
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">&#x1F916;&#x1F4DD; SynSlideGen : AI-Generated Lecture Slides for Improving Slide Element Detection and Retrieval</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://www.linkedin.com/in/maniyar-suyash/">Suyash Maniyar<sup>*</sup></a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://nerdyvisky.github.io">Vishvesh Trivedi<sup>*&#8224;</sup></a><sup>2</sup>,</span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=ai9lifYAAAAJ&hl=en">Ajoy Mondal</a><sup>3</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://anandmishra22.github.io">Anand Mishra</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?hl=en&user=U9dH-DoAAAAJ&view_op=list_works">C.V. Jawahar</a><sup>3</sup>,
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <div class="author-block" style="width: 100%"><sup>1</sup>Indian Institute of Technology, Jodhpur</div>
+            <div class="author-block" style="width: 100%"><sup>2</sup>Sardar Vallabhbhai National Institute of Technology, Surat</div>
+            <div class="author-block" style="width: 100%"><sup>3</sup>CVIT, IIIT Hyderabad</div>
+          </div>
+          <p><i><sup>*</sup> Equal Contribution. <sup>&#8224;</sup>Work done during internship at IIIT Hyderabad</i></p>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- ARXIV Link. -->
+              <span class="link-block">
+                <a href="#"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Supp Link. -->
+              <span class="link-block">
+                <a href="#"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Supp</span>
+                </a>
+              </span>
+              <!-- Models. -->
+              <span class="link-block">
+                <a href="#"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-cubes"></i>
+                  </span>
+                  <span>Models</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="#"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+              <!-- Dataset Link. -->
+              <span class="link-block">
+                <a href="#"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="far fa-images"></i>
+                  </span>
+                  <span>Data</span>
+                  </a>
+            </div>
+
+          </div>
+          <div class="has-text-centered">
+            <h5 style="color: red; font-size: 1.5rem; font-weight: bold;">To be presented at ICDAR 2025 (Sept 16 - 21; Wuhan, China.)</h5>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <h5 style="font-size: large;"><b>Key Contributions</b></h5>
+      <ul style="list-style-type: square;">
+        <li><b>SynSlideGen: </b>A modular and lightweight pipeline to generate synthetic slides with automated annotations for Slide Element Detection and Text Query-based Slide Retrieval</li>
+        <li><b>RealSlide: </b>A benchmark dataset of 1050 real graduate-level lecture slides with annotations for multiple slide-image tasks.</li>
+        <li><b>Extensive Analysis: </b> Analysing the effectiveness of training with sythetic slides generated using the proposed pipeline for Slide Element Detection and Query-based Slide Retrieval tasks. </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<section class="hero is-light is-normal">
+  <div class="hero-body">
+    <div class="container">
+      <div id="results-carousel" class="carousel results-carousel">
+        <div class="item item-steve">
+          <img src="./static/images/carousel/1a.png" alt="Annotation Sample : Image 1" class="img-fluid rounded" height="100%"/>
+        </div>
+        <div class="item item-chair-tp">
+          <img src="./static/images/carousel/1b.png" alt="Annotation Sample : Image 2" class="img-fluid rounded" height="100%"/> 
+        </div>
+        <div class="item item-shiba">
+          <img src="./static/images/carousel/1c.png" alt="Annotation Sample : Image 3" class="img-fluid rounded" height="100%"/>
+
+         
+        </div>
+        <div class="item item-fullbody">
+          <img src="./static/images/carousel/2a.png" alt="SynDet Sample : Image 1" class="img-fluid rounded" height="100%"/>
+
+        </div>
+        <div class="item item-blueshirt">
+          <img src="./static/images/carousel/2b.png" alt="SynDet Sample : Image 1" class="img-fluid rounded" height="100%"/>
+        </div>
+        <div class="item item-mask">
+          <img src="./static/images/carousel/2c.png" alt="SynDet Sample : Image 1" class="img-fluid rounded" height="100%"/>
+        </div>
+        <div class="item item-coffee">
+          <img src="./static/images/carousel/3a.png" alt="SynDet Sample : Image 1" class="img-fluid rounded" height="100%"/>
+        </div>
+        <div class="item item-toby">
+          <img src="./static/images/carousel/3b.png" alt="SynDet Sample : Image 1" class="img-fluid rounded" height="100%"/>
+        </div>
+        <div class="item item-toby">
+          <img src="./static/images/carousel/3c.png" alt="SynDet Sample : Image 1" class="img-fluid rounded" height="100%"/>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Lecture slide element detection and retrieval, key tasks in lecture slide understanding, 
+            have gained significant attention in the multi-modal research community. 
+            However, annotating large volumes of lecture slides for supervised training is labor intensive and domain specific.
+          </p>
+          <p>
+            To address this, we propose a large language model (LLM)-guided Synthetic Lecture Slide Generation SynLecSlideGen 
+            pipeline that produces high-quality, coherent slides, named as SynSlide dataset, closely resembling real lecture slides. 
+            We also create an evaluation benchmark RealSlide by manually annotating 1050 real slides curated from lecture presentation decks. 
+            To evaluate the effectiveness of SynSlide dataset, we perform few-shot transfer learning on real slides using models pre-trained on our synthetically generated slides. 
+          </p>
+          <p>
+            Experimental results show that few-shot transfer learning outperforms training only on the real dataset especially in low resource settings, 
+            demonstrating that synthetic slides can be a valuable pre-training resource in labeled data scarce real-world scenarios.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+
+    <!-- SynSlideGen Pipeline . -->
+    <div class="columns is-centered has-text-centered" style="width: 100%">
+      <div class="column is-four-fifths" style="width: 100%">
+        <h2 class="title is-3"><span style="font-family: 'Courier New', Courier, serif"> SynSlideGen</span> pipeline </h2>
+        <div class="publication-video">
+          <figure>
+          <img src="./static/images/fig1a_updated_overview.pdf" 
+               style="width: 85%" 
+               alt="SynDet Sample : Image 1" 
+               class="img-fluid rounded" 
+               height="100%"/>
+          <figcaption>Overview of our Synthetic Lecture Slide Generation <span style="font-family: 'Courier New', Courier, serif; font-weight: bold ;">SynLecSlideGen</span> pipeline. 
+            In Phase I, we generate presentation content using LLMs and Web Image search agents in a multi-step process.
+            In Phase II, we arbitrarily assign layout and style based on each slide's content. 
+            Finally, in Phase III, we generate the PPT files, convert them to images, 
+            and also generate automatic annotations for multiple downstream tasks from the final JSON file. </figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+    <!--/ Paper video. -->
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <h1 class="title" style="text-align: center; justify-content: center; margin-top: -5vh;"> Generated Datasets</h1>
+
+    <div class="columns is-centered">
+
+      <!-- Visual Effects. -->
+      <div class="column">
+        <div class="content">
+          <h2 class="title is-3" style="font-family: 'Courier New', Courier, serif; font-weight: bold ;"> SynDet</h2>
+          <p>
+            <b>SynDet</b> is a subset of our synthetic slide dataset designed specifically for the <i>Slide Element Detection (SED)</i> task. It includes <b>2,200 slide images automatically annotated with bounding boxes in COCO format. </b> These annotations span <b>16 fine-grained element categories</b>, such as:
+            </p>
+            <ul>
+              <li>Textual: <code>Title</code>, <code>Description</code>, <code>Enumeration</code>, <code>Heading</code></li>
+              <li>Structural: <code>Equation</code>, <code>Table</code>, <code>Chart</code>, <code>Code</code></li>
+              <li>Visual: <code>Diagram</code>, <code>Natural-Image</code>, <code>Logo</code></li>
+              <li>Meta: <code>Slide Number</code>, <code>Footer Element</code>, <code>URL</code></li>
+              <li>Captions: <code>Figure Caption</code>, <code>Table Caption</code></li>
+            </ul>
+            <p>
+            Annotations are extracted directly from slide structure JSONs and layout maps generated in the SynSlideGen pipeline, allowing pixel-accurate labeling without manual annotation. This provides a scalable solution for training and benchmarking object detection models on educational material.
+            </p>
+            <img src="./static/images/carousel/1a.png" alt="Annotation Sample : Image 1" class="img-fluid rounded" height="100%"/>
+          <!-- <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/dollyzoom-stacked.mp4"
+                    type="video/mp4">
+          </video> -->
+        </div>
+      </div>
+      <!--/ Visual Effects. -->
+
+      <!-- Matting. -->
+      <div class="column">
+        <h2 class="title is-3" style="font-family: 'Courier New', Courier, serif; font-weight: bold ;">SynRet </h2>
+        <div class="columns is-centered">
+          <div class="column content">
+            <p>
+              <b>SynRet</b> is curated for the <i>Text-based Slide Image Retrieval (TSIR)</i> task. It consists of <b>2,200 synthetic slides</b> where each slide is paired with <b>two styles of slide-level textual summaries</b>:
+              </p>
+              <ul>
+                <li><b>LecSD-style summaries:</b> OCR-like textual descriptions focused on layout and key phrases.</li>
+                <li><b>LLM-generated semantic summaries:</b> Capturing holistic slide intent, structure, and metadata (e.g., footer content, instructor name).</li>
+              </ul>
+              <p>
+              This dual-format enables both robustness and variability in retrieval models. The dataset is optimized for CLIP-style vision-language embedding training and includes rare slide types 
+              (e.g., equation-heavy, multi-diagram) to improve generalization.
+              </p>
+              <p>
+                <b>SynRet</b> also enables training for <i>compositional reasoning</i> tasks, such as counting elements, querying slides without a title, and reasoning over layout features like position and size. 
+                With metadata like slide numbers and instructor names, SynRet supports rich, structure-aware retrieval beyond standard OCR-based search.
+              </p>
+            <img src="./static/images/fig2_tsir_summaries.pdf" alt="Annotation Sample : Image 1" class="img-fluid rounded" height="100%"/>
+
+            <!-- <video id="matting-video" controls playsinline height="100%">
+              <source src="./static/videos/matting.mp4"
+                      type="video/mp4">
+            </video> -->
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!--/ Matting. -->
+
+    <!-- Animation. -->
+    <div class="columns is-centered" style="text-align: center; justify-content: center;">
+      <div class="column is-full-width">
+        <h2 class="title is-3"><span 
+          style="font-family: 'Courier New', Courier, serif; font-weight: bold; ">
+          RealSlide
+        </span> 
+        Benchmark
+      </h2>
+      <p>
+        <b>RealSlide</b> is a benchmark dataset of <b>1,050 manually annotated slides</b> sourced from university-level courses in 
+        <b>Computer Science (50%)</b>, <b>Economics (20%)</b>, <b>Physics (15%)</b>, and <b>Mathematics (15%)</b>. 
+        Slides are curated from publicly available university lecture decks under Creative Commons licenses. Full list of utlized presentations can be accessed <a href="#">here </a>
+      </p>
+
+        <!-- Interpolating. -->
+        <h3 style="margin-top: 5vh;"class="title is-4">Manual Annotation</h3>
+        <div class="content has-text-justified">
+        </div>
+        <div class="publication-video">
+          <figure>
+          <img src="./static/images/cvat_tool.png" 
+               style="width: 85%" 
+               alt="SynDet Sample : Image 1" 
+               class="img-fluid rounded" 
+               height="100%"/>
+          <figcaption> Pixel-perfect annotation performed manually using the open-source CVAT annotation tool <a href="https://github.com/cvat-ai/cvat"> <span class="icon"> <i class="fab fa-github"></i></span></a></figcaption>
+          </figure>
+        </div>
+        <br/>
+        <!--/ Interpolating. -->
+
+        <!-- Re-rendering. -->
+        <div class="subsection mb-5 is-centered">
+          <h4 class="subsection-title mb-2 title">Slide Element Detection</h4>
+          <p class="section-text">
+            Training with synthetic data improves mAP@0.5 across most element classes. Especially for low-resource visual classes like <code>Code</code>, <code>Natural Image</code>, <code>Diagram</code>, <code>Chart</code>, etc.
+          </p>
+          <div class="text-center mt-3">
+            <img src="./static/images/slide_element_detection.png" alt=" Effect of real slide images (RealSlide) on the performance (mAP@[0.5-0.95]) of three slide element detection models under two training strategies: (i) Single Stage and (ii) Two Stage" class="img-fluid rounded" />
+            <p class="figure-caption mt-2"><i>Effect of real slide images (RealSlide) on the performance (mAP@[0.5-0.95]) of three slide element detection models under two training strategies: (i) Single Stage and (ii) Two Stage</i></p>
+          </div>
+          <div class="mt-3" style="display: flex; justify-content: center; overflow-x: auto;">
+            <table class="table is-bordered is-striped is-hoverable is-centered">
+              <thead>
+                <tr>
+                  <th rowspan="2">Element</th>
+                  <th colspan="6">Fine-tuning using 50 Real Images</th>
+                  <th colspan="6">Fine-tuning using 300 Real Images</th>
+                </tr>
+                <tr>
+                  <th colspan="2">YOLOV9</th>
+                  <th colspan="2">LayoutLMv3</th>
+                  <th colspan="2">DETR</th>
+                  <th colspan="2">YOLOV9</th>
+                  <th colspan="2">LayoutLMv3</th>
+                  <th colspan="2">DETR</th>
+                </tr>
+                <tr>
+                  <th></th>
+                  <th>SS</th><th>TS</th>
+                  <th>SS</th><th>TS</th>
+                  <th>SS</th><th>TS</th>
+                  <th>SS</th><th>TS</th>
+                  <th>SS</th><th>TS</th>
+                  <th>SS</th><th>TS</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Title</td><td>69.1</td><td>75.3</td><td>66.2</td><td>71.9</td><td>57.8</td><td>67.2</td><td>70.9</td><td>75.4</td><td>71.8</td><td>77.0</td><td>59.5</td><td>69.7</td></tr>
+                <tr><td>Text</td><td>06.5</td><td>17.4</td><td>11.3</td><td>13.2</td><td>07.4</td><td>13.8</td><td>15.6</td><td>21.5</td><td>13.8</td><td>18.1</td><td>09.1</td><td>15.3</td></tr>
+                <tr><td>Enumeration</td><td>57.5</td><td>66.8</td><td>60.7</td><td>67.8</td><td>67.1</td><td>72.4</td><td>70.9</td><td>76.7</td><td>72.0</td><td>79.9</td><td>68.6</td><td>74.9</td></tr>
+                <tr><td>URL</td><td>00.0</td><td>03.4</td><td>00.0</td><td>00.8</td><td>00.8</td><td>01.5</td><td>03.4</td><td>01.3</td><td>02.4</td><td>02.1</td><td>01.8</td><td>02.7</td></tr>
+                <tr><td>Equation</td><td>09.2</td><td>28.3</td><td>00.9</td><td>09.8</td><td>16.6</td><td>20.2</td><td>23.0</td><td>27.4</td><td>16.5</td><td>24.2</td><td>18.3</td><td>22.1</td></tr>
+                <tr><td>Table</td><td>57.8</td><td>60.1</td><td>35.7</td><td>43.3</td><td>48.5</td><td>50.6</td><td>82.7</td><td>56.2</td><td>59.0</td><td>63.1</td><td>56.5</td><td>51.3</td></tr>
+                <tr><td>Diagram</td><td>25.8</td><td>46.3</td><td>26.6</td><td>39.9</td><td>33.7</td><td>41.0</td><td>53.8</td><td>58.6</td><td>46.0</td><td>50.4</td><td>38.8</td><td>44.7</td></tr>
+                <tr><td>Chart</td><td>12.8</td><td>33.4</td><td>08.5</td><td>17.4</td><td>08.9</td><td>14.4</td><td>31.7</td><td>32.1</td><td>14.9</td><td>23.1</td><td>11.7</td><td>18.9</td></tr>
+                <tr><td>Heading</td><td>06.1</td><td>09.2</td><td>03.8</td><td>16.1</td><td>10.6</td><td>18.8</td><td>18.6</td><td>22.8</td><td>24.6</td><td>35.2</td><td>13.1</td><td>20.3</td></tr>
+                <tr><td>Slide Number</td><td>25.0</td><td>27.3</td><td>33.4</td><td>29.3</td><td>20.8</td><td>24.1</td><td>27.7</td><td>25.9</td><td>28.2</td><td>26.7</td><td>22.5</td><td>25.6</td></tr>
+                <tr><td>Footer Element</td><td>48.7</td><td>42.2</td><td>47.2</td><td>48.0</td><td>36.6</td><td>42.0</td><td>51.5</td><td>47.7</td><td>43.0</td><td>48.9</td><td>40.0</td><td>45.1</td></tr>
+                <tr><td>Figure caption</td><td>02.7</td><td>05.7</td><td>00.3</td><td>10.9</td><td>01.8</td><td>06.7</td><td>15.8</td><td>14.2</td><td>07.6</td><td>09.8</td><td>00.4</td><td>08.1</td></tr>
+                <tr><td>Table caption</td><td>00.0</td><td>11.8</td><td>00.0</td><td>02.0</td><td>01.3</td><td>06.9</td><td>19.2</td><td>21.6</td><td>00.0</td><td>02.2</td><td>02.1</td><td>08.7</td></tr>
+                <tr><td>Logo</td><td>48.3</td><td>46.1</td><td>03.7</td><td>28.1</td><td>18.8</td><td>26.2</td><td>67.9</td><td>69.4</td><td>26.0</td><td>42.9</td><td>22.6</td><td>34.7</td></tr>
+                <tr><td>Code</td><td>02.1</td><td>34.6</td><td>00.0</td><td>05.0</td><td>08.0</td><td>14.5</td><td>23.8</td><td>42.5</td><td>10.5</td><td>18.6</td><td>12.1</td><td>17.8</td></tr>
+                <tr><td>Natural Image</td><td>00.7</td><td>20.9</td><td>00.0</td><td>12.0</td><td>00.4</td><td>11.7</td><td>11.8</td><td>27.9</td><td>10.4</td><td>18.3</td><td>09.3</td><td>14.6</td></tr>
+                <tr><th>Macro avg</th><th>23.3</th><th>33.0</th><th>18.6</th><th>26.1</th><th>21.2</th><th>27.0</th><th>36.8</th><th>38.8</th><th>27.9</th><th>33.8</th><th>26.8</th><th>30.2</th></tr>
+              </tbody>
+            </table>  
+          </div>
+          <p class="figure-caption mt-2"><i>Element-wise mAP @ IoU [0.50:0.95] for three slide element detection models under two fine-tune strategies: (i) Single Stage (SS) and (ii)Two Stage (TS) on the test set (750 images) of the RealSlide dataset.</i></p>
+
+        </div>
+    
+        <div class="subsection mb-5">
+          <h4 class="subsection-title title mb-2">Slide Image Retrieval</h4>
+          <p class="section-text">A qualtiative example</p>
+          <div class="figure-container mt-5 mb-5" style="text-align: center;">
+            <p class="mb-3"><em>Query: A slide on Pseudo relevance feedback with a diagram and enumeration</em></p>
+            <div class="image-row" style="display: flex; justify-content: center; flex-wrap: wrap; gap: 5px; width:100%;">
+              <div class="image-box">
+                <figure>
+                  <img src="./static/images/tisr/0.png" alt="1st result" style="width: 15vw; border: 3px solid green; padding: 0px;">
+                  <figcaption>1st</figcaption>
+                </figure>
+              </div>
+              <div class="image-box">
+                <figure>
+                  <img src="./static/images/tisr/1.png" alt="2nd result" style="width: 15vw;  border: 1px solid #ccc; padding: 0px;">
+                  <figcaption>2nd</figcaption>
+                </figure>
+              </div>
+              <div class="image-box">
+                <figure>
+                  <img src="./static/images/tisr/2.png" alt="3rd result" style="width: 15vw;  border: 1px solid #ccc; padding: 0px;">
+                  <figcaption>3rd</figcaption>
+                </figure>
+              </div>
+              <div class="image-box">
+                <figure>
+                  <img src="./static/images/tisr/3.png" alt="4th result" style="width: 15vw;  border: 1px solid #ccc; padding: 0px;">
+                  <figcaption>4th</figcaption>
+                </figure>
+              </div>
+            </div>
+            <p class="mt-3"><strong> Ground Truth slide highlighted in <span style="color: green">green</span></p>
+          </div>
+          
+          <p class="section-text">
+            SynSlideGen-augmented training improves Recall@1 and Recall@5 for CLIP-based retrieval models. It enhances performance particularly for underrepresented slide types like equation-heavy or diagram slides.
+          </p>
+          <div class="text-center mt-3">
+            <div class="mb-3 mb-5">
+              
+            </div>
+            <div class="table-container mt-5 mb-5" style="text-align: center;">
+              <h5 class="mb-3"><i>Text-based Lecture Slide Retrieval using CLIP model. We show Recall@1 and Recall@10.</i></h5>
+              <div style="overflow-x:auto; display: inline-block;">
+                <table class="table is-bordered is-striped is-hoverable">
+                  <thead>
+                    <tr>
+                      <th colspan="3">Dataset</th>
+                      <th>R@1</th>
+                      <th>R@10</th>
+                    </tr>
+                    <tr>
+                      <th>Finetuning dataset (# Samples)</th>
+                      <th>Test Dataset (# Samples)</th>
+                      <th>In-domain</th>
+                      <th></th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>None (zero-shot)</td><td rowspan="5">LecSD-Test (10,000)</td><td>NA</td><td>16</td><td>44</td></tr>
+                    <tr><td>LecSD-Train (31,475)</td><td>Yes</td><td>45</td><td>78</td></tr>
+                    <tr><td>DreamStruct (3,183)</td><td>No</td><td>26</td><td>59</td></tr>
+                    <tr><td>SynRet (2,200)</td><td>No</td><td>26</td><td>60</td></tr>
+                    <tr><td>RealSlide (300)</td><td>No</td><td>20</td><td>49</td></tr>
+            
+                    <tr><td>None (zero-shot)</td><td rowspan="5">RealSlide (750)</td><td>NA</td><td>33</td><td>63</td></tr>
+                    <tr><td>LecSD-Train (31,475)</td><td>No</td><td>31</td><td>57</td></tr>
+                    <tr><td>DreamStruct (3,183)</td><td>No</td><td>42</td><td>67</td></tr>
+                    <tr><td>SynRet (2,200)</td><td>No</td><td>43</td><td>69</td></tr>
+                    <tr><td>RealSlide (300)</td><td>No</td><td>40</td><td>69</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>            
+            <p class="figure-caption mt-2"><i>Table 3: SIR Retrieval Metrics (Recall@K)</i></p>
+          </div>
+        </div>
+    
+        <!-- <h3 class="title is-4"> </h3>
+        <div class="content has-text-justified">
+          <p>
+            Using <span class="dnerf">Nerfies</span>, you can re-render a video from a novel
+            viewpoint such as a stabilized camera by playing back the training deformations.
+          </p>
+        </div>
+        <div class="content has-text-centered"> -->
+          <!-- <video id="replay-video"
+                 controls
+                 muted
+                 preload
+                 playsinline
+                 width="75%">
+            <source src="./static/videos/replay.mp4"
+                    type="video/mp4">
+          </video> -->
+        <!-- </div> -->
+        <!--/ Re-rendering. -->
+
+      </div>
+    </div>
+    <!--/ Animation. -->
+
+
+    <!-- Concurrent Work. -->
+    <!-- <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Related Links</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            There's a lot of excellent work that was introduced around the same time as ours.
+          </p>
+          <p>
+            <a href="https://arxiv.org/abs/2104.09125">Progressive Encoding for Neural Optimization</a> introduces an idea similar to our windowed position encoding for coarse-to-fine optimization.
+          </p>
+          <p>
+            <a href="https://www.albertpumarola.com/research/D-NeRF/index.html">D-NeRF</a> and <a href="https://gvv.mpi-inf.mpg.de/projects/nonrigid_nerf/">NR-NeRF</a>
+            both use deformation fields to model non-rigid scenes.
+          </p>
+          <p>
+            Some works model videos with a NeRF by directly modulating the density, such as <a href="https://video-nerf.github.io/">Video-NeRF</a>, <a href="https://www.cs.cornell.edu/~zl548/NSFF/">NSFF</a>, and <a href="https://neural-3d-video.github.io/">DyNeRF</a>
+          </p>
+          <p>
+            There are probably many more by the time you are reading this. Check out <a href="https://dellaert.github.io/NeRF/">Frank Dellart's survey on recent NeRF papers</a>, and <a href="https://github.com/yenchenlin/awesome-NeRF">Yen-Chen Lin's curated list of NeRF papers</a>.
+          </p>
+        </div>
+      </div>
+    </div> -->
+    <!--/ Concurrent Work. -->
+
+  </div>
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code></code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p style="font-weight: 400;">
+            <!-- This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            This means you are free to borrow the <a
+              href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website,
+            we just ask that you link back to this page in the footer.
+            Please remember to remove the analytics code included in the header of the website which
+            you do not want on your website. -->
+            This website is adapted from <a href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>, licensed under a <a rel="license"
+            href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License.</a>
+          </p>
+        </div>
+      </div>
+    </div>
+</footer>
+
+</body>
+</html>
