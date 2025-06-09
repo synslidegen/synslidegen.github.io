@@ -441,7 +441,7 @@
     <div class="columns is-centered" style="text-align: center; justify-content: center;">
       <div class="column is-full-width">
         <h2 class="title is-3"><span 
-          style="font-family: 'Courier New', Courier, serif; font-weight: bold; ">
+          style="font-family: 'Courier New', Courier, serif; ">
           RealSlide
         </span> 
         Benchmark
@@ -564,14 +564,14 @@
             <p class="mt-3"><strong> Ground Truth slide highlighted in <span style="color: green">green</span></p>
           </div>
           
-          <p class="section-text">
-            SynSlideGen-augmented training improves Recall@1 and Recall@5 for CLIP-based retrieval models. It enhances performance particularly for underrepresented slide types like equation-heavy or diagram slides.
+          <p class="section-text" style="text-align: center; font-weight: 300;">
+            SynSlideGen-augmented training improves Recall@1 and Recall@5 for CLIP-based retrieval models. It enhances performance particularly for open-world, out-of-domain lecture slides, 
           </p>
           <div class="text-center mt-3">
             <div class="mb-3 mb-5">
               
             </div>
-            <div class="table-container mt-5 mb-5" style="text-align: center;">
+            <div class="table-container mt-5 mb-5" style="text-align: center; font-weight: 300;">
               <h5 class="mb-3"><i>Text-based Lecture Slide Retrieval using CLIP model. We show Recall@1 and Recall@10.</i></h5>
               <div style="overflow-x:auto; display: inline-block;">
                 <table class="table is-bordered is-striped is-hoverable">
@@ -600,7 +600,7 @@
                     <tr><td>LecSD-Train (31,475)</td><td>No</td><td>31</td><td>57</td></tr>
                     <tr><td>DreamStruct (3,183)</td><td>No</td><td>42</td><td>67</td></tr>
                     <tr><td>SynRet (2,200)</td><td>No</td><td>43</td><td>69</td></tr>
-                    <tr><td>RealSlide (300)</td><td>No</td><td>40</td><td>69</td></tr>
+                    <tr><td>RealSlide (300)</td><td>Yes</td><td>40</td><td>69</td></tr>
                   </tbody>
                 </table>
               </div>
