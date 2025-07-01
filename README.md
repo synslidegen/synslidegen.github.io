@@ -4,7 +4,15 @@ This is the repository that contains source code for the [SynSlideGen](https://s
 
 If you happen to use the pipeline, code, dataset, or evaluation benchmark in your studies then please cite:
 ```
-@article{
+@misc{
+  maniyar2025aigeneratedlectureslidesimproving,
+  title={AI-Generated Lecture Slides for Improving Slide Element Detection and Retrieval}, 
+  author={Suyash Maniyar and Vishvesh Trivedi and Ajoy Mondal and Anand Mishra and C. V. Jawahar},
+  year={2025},
+  eprint={2506.23605},
+  archivePrefix={arXiv},
+  primaryClass={cs.CV},
+  url={https://arxiv.org/abs/2506.23605}, 
 }
 ```
 
