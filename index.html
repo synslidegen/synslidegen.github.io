@@ -21,6 +21,17 @@
 
     gtag('config', 'G-PYVRSFMDRL');
   </script>
+  <script>
+    function copyBibtex() {
+      const bibtexText = document.getElementById("bibtex-entry").innerText;
+      navigator.clipboard.writeText(bibtexText).then(() => {
+        alert("BibTeX copied to clipboard!");
+      }).catch(err => {
+        console.error("Failed to copy: ", err);
+      });
+    }
+  </script>
+  
 
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
         rel="stylesheet">
@@ -206,27 +217,47 @@
           <div class="column has-text-centered">
             <div class="publication-links">
               <!-- ARXIV Link. -->
-              <!-- <span class="link-block">
-                <a target="_blank" href="./static/pdfs/synslidegen_paper.pdf"
+              <span class="link-block">
+                <a target="_blank" href="https://www.arxiv.org/abs/2506.23605"
                    class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
                       <i class="ai ai-arxiv"></i>
                   </span>
                   <span>arXiv</span>
                 </a>
-              </span> -->
-              <!-- Paper Link. -->
+              </span>
+              <!-- PDF Link. -->
               <span class="link-block">
+                <a target="_blank" href="https://www.arxiv.org/pdf/2506.23605"
+                    class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>PDF</span>
+                </a>
+              </span>
+              <!-- Paper Link. -->
+              <!-- <span class="link-block">
                 <a target="_blank" href="./static/pdfs/synslidegen_paper.pdf"
                     class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
                       <i class="fas fa-file-pdf"></i>
                   </span>
-                  <span>Paper</span>
+                  <span>Paper </span>
+                </a>
+              </span> -->
+              <!-- Citation Link. -->
+              <span class="link-block">
+                <a target="_self" href="#BibTeX"
+                    class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-quote-left"></i>
+                  </span>
+                  <span>Cite</span>
                 </a>
               </span>
               <!-- Supp Link. -->
-              <span class="link-block">
+              <!-- <span class="link-block">
                 <a target="_blank" href="./static/pdfs/synslidegen_supp.pdf"
                    class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
@@ -234,7 +265,7 @@
                   </span>
                   <span>Supp</span>
                 </a>
-              </span>
+              </span> -->
               <!-- Models. -->
               <span class="link-block">
                 <a target="_blank" href="https://huggingface.co/msuyash/SynLecSlideGen_Yolov9t_SlideElementDetection"
@@ -679,11 +710,26 @@
 <section class="section" id="BibTeX">
   <div class="container is-max-desktop content">
     <h2 class="title">BibTeX</h2>
-    <pre><code>
-      COMING SOON!
-    </code></pre>
+    <div style="position: relative;">
+      <button onclick="copyBibtex()" style="position: absolute; top: 0; right: 0;" class="button is-small is-link">
+        Copy
+      </button>
+      <pre><code id="bibtex-entry">
+@misc{
+  maniyar2025aigeneratedlectureslidesimproving,
+  title={AI-Generated Lecture Slides for Improving Slide Element Detection and Retrieval}, 
+  author={Suyash Maniyar and Vishvesh Trivedi and Ajoy Mondal and Anand Mishra and C. V. Jawahar},
+  year={2025},
+  eprint={2506.23605},
+  archivePrefix={arXiv},
+  primaryClass={cs.CV},
+  url={https://arxiv.org/abs/2506.23605}, 
+}
+      </code></pre>
+    </div>
   </div>
 </section>
+
 
 
 <footer class="footer">
