@@ -22,6 +22,29 @@
     gtag('config', 'G-PYVRSFMDRL');
   </script>
   <script>
+    async function fetchDownloadCount() {
+      const datasetId = "NerdyVisky/SynSlides";
+      const url = `https://huggingface.co/api/datasets/${datasetId}?expand=downloads&expand=downloadsAllTime`;
+  
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Failed to fetch download count");
+  
+        const data = await response.json();
+        // console.log(data)
+        const count = data.downloadsAllTime ?? "N/A";
+  
+        document.getElementById("download-count").textContent = count.toLocaleString();
+      } catch (error) {
+        console.error("Error fetching download count:", error);
+        document.getElementById("download-count").textContent = "Unavailable";
+      }
+    }
+  
+    // Call on page load
+    fetchDownloadCount();
+  </script>  
+  <script>
     function copyBibtex() {
       const bibtexText = document.getElementById("bibtex-entry").innerText;
       navigator.clipboard.writeText(bibtexText).then(() => {
@@ -302,6 +325,28 @@
             <h5 style="color: red; font-size: 1.5rem; font-weight: bold;">To be presented at ICDAR 2025 (Oral)</h5>
             <h3 style="color: red; font-size: 1.2rem; font-weight: bold;">Sept 16 - 21 in Wuhan, China.</h3>
           </div>
+
+          <div class="text-center mt-3 has-text-centered" style="
+          display: flex;
+          align-items: center;
+          background: #f5f5f5;
+          padding: 10px 16px;
+          border-radius: 12px;
+          margin: 0 auto;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          font-family: 'Segoe UI', Roboto, sans-serif;
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: #333;
+          width: fit-content;
+          margin-top: 20px;
+      ">   
+            <span id="download-count" style="font-size: 1.75rem; font-weight: bold; color: black;"> ... </span> 
+            <img src="static/images/hf-logo.svg" alt="Hugging Face Logo" style="height: 48px; width: auto; margin-bottom: -10px;" class="me-2"> 
+            <span style="font-size: 1.25rem; font-weight: 600;"> downloads </span>
+          </div>
+          
+          
         </div>
       </div>
     </div>
@@ -712,15 +757,11 @@
         Copy
       </button>
       <pre><code id="bibtex-entry">
-@misc{
-  maniyar2025aigeneratedlectureslidesimproving,
-  title={AI-Generated Lecture Slides for Improving Slide Element Detection and Retrieval}, 
-  author={Suyash Maniyar and Vishvesh Trivedi and Ajoy Mondal and Anand Mishra and C. V. Jawahar},
-  year={2025},
-  eprint={2506.23605},
-  archivePrefix={arXiv},
-  primaryClass={cs.CV},
-  url={https://arxiv.org/abs/2506.23605}, 
+@article{maniyar2025ai,
+  title={AI-Generated Lecture Slides for Improving Slide Element Detection and Retrieval},
+  author={Maniyar, Suyash and Trivedi, Vishvesh and Mondal, Ajoy and Mishra, Anand and Jawahar, CV},
+  journal={arXiv preprint arXiv:2506.23605},
+  year={2025}
 }
       </code></pre>
     </div>
