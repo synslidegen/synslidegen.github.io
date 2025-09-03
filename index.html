@@ -24,15 +24,21 @@
   <script>
     async function fetchDownloadCount() {
       const datasetId = "NerdyVisky/SynSlides";
+      const datasetId2 = "NerdyVisky/RealSlide";
       const url = `https://huggingface.co/api/datasets/${datasetId}?expand=downloads&expand=downloadsAllTime`;
-  
+      const url2 = `https://huggingface.co/api/datasets/${datasetId2}?expand=downloads&expand=downloadsAllTime`;
+      
       try {
         const response = await fetch(url);
         if (!response.ok) throw new Error("Failed to fetch download count");
   
         const data = await response.json();
         // console.log(data)
-        const count = data.downloadsAllTime ?? "N/A";
+        let count = data.downloadsAllTime ?? "N/A";
+        const response2 = await fetch(url2);
+        if (!response2.ok) throw new Error("Failed to fetch download count");
+        const data2 = await response2.json();
+        count = count + data2.downloadsAllTime ?? "N/A";
   
         document.getElementById("download-count").textContent = count.toLocaleString();
       } catch (error) {
@@ -311,7 +317,7 @@
               </span>
               <!-- Dataset Link. -->
               <span class="link-block">
-                <a target="_blank" href="https://huggingface.co/datasets/NerdyVisky/SynSlides/tree/main"
+                <a target="_blank" href="https://huggingface.co/datasets/NerdyVisky/RealSlide/tree/main"
                    class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
                       <i class="far fa-images"></i>
